@@ -4,6 +4,7 @@ Function calls
 
 a {
   color: rgba(0, 255, 0, 0.5);
+  width: math.div(500px, 4);
 }
 
 ---
@@ -21,7 +22,15 @@ a {
             (integer_value)
             (integer_value)
             (integer_value)
-            (float_value)))))))
+            (float_value))))
+      (declaration
+        (property_name)
+        (call_expression
+          (function_name)
+          (arguments
+            (integer_value
+              (unit))
+            (integer_value)))))))
 
 =============================================
 Calls where each argument has multiple values
@@ -213,6 +222,41 @@ a {
                       (integer_value))))))))))))
 
 ============================
+Binary and unary expressions
+============================
+
+@debug true and true;
+@debug 1 + 2;
+@debug 30px / 15px;
+@debug / 15px;
+@debug not false;
+
+---
+
+(stylesheet
+  (debug_statement
+    (binary_expression
+      (plain_value)
+      (plain_value)))
+  (debug_statement
+    (binary_expression
+      (integer_value)
+      (integer_value)))
+  (debug_statement
+    (binary_expression
+      (integer_value
+        (unit))
+      (integer_value
+        (unit))))
+  (debug_statement
+    (unary_expression
+      (integer_value
+        (unit))))
+  (debug_statement
+    (unary_expression
+      (plain_value))))
+
+============================
 Strings
 ============================
 
@@ -233,7 +277,8 @@ a {
         (string_value))
       (declaration
         (property_name)
-        (string_value)))))
+        (string_value
+          (string_content))))))
 
 ============================
 URLs
@@ -403,6 +448,50 @@ a {
           (unit))
         (variable)))))
 
+============================
+Variables with !default
+============================
+
+$font-stack: Helvetica, sans-serif;
+$map: (1: 2, 3: 4);
+
+a {
+  $primary-color: red;
+
+  color: $primary-color;
+  font: 100% $font-stack;
+}
+
+---
+
+(stylesheet
+  (declaration
+    (property_name)
+    (plain_value)
+    (plain_value))
+  (declaration
+    (property_name)
+    (map_value
+      (integer_value)
+      (integer_value)
+      (integer_value)
+      (integer_value)))
+  (rule_set
+    (selectors
+      (tag_name))
+    (block
+      (declaration
+        (property_name)
+        (plain_value))
+      (declaration
+        (property_name)
+        (variable))
+      (declaration
+        (property_name)
+        (integer_value
+          (unit))
+        (variable)))))
+
 =================================
 Mixins with no arguments
 =================================
@@ -544,3 +633,134 @@ div {
       (declaration
         (property_name)
         (integer_value)))))
+
+==========
+Maps
+==========
+
+$map: (foo: "bar");
+
+$map: ("foo": "bar");
+
+$knowledge-variants: (
+  "blue": $blue,
+  "green": $green,
+  "turquoise": bar.$turquoise
+);
+
+$map: (1: 2, 3: 4);
+
+---
+
+(stylesheet
+  (declaration
+    (property_name)
+    (map_value
+      (plain_value)
+      (string_value
+        (string_content))))
+  (declaration
+    (property_name)
+    (map_value
+      (string_value
+        (string_content))
+      (string_value
+        (string_content))))
+  (declaration
+    (property_name)
+    (map_value
+      (string_value
+        (string_content))
+      (variable)
+      (string_value
+        (string_content))
+      (variable)
+      (string_value
+        (string_content))
+      (plain_value)))
+  (declaration
+    (property_name)
+    (map_value
+      (integer_value)
+      (integer_value)
+      (integer_value)
+      (integer_value))))
+
+==============
+Grid values
+==============
+
+div {
+  grid-template: [linename] 100px / [columnname1] 30% [columnname2] 70%;
+}
+
+---
+
+(stylesheet
+  (rule_set
+    (selectors
+      (tag_name))
+    (block
+      (declaration
+        (property_name)
+        (grid_value
+          (plain_value))
+        (binary_expression
+          (integer_value
+            (unit))
+          (grid_value
+            (plain_value)))
+        (integer_value
+          (unit))
+        (grid_value
+          (plain_value))
+        (integer_value
+          (unit))))))
+
+=============================================
+PostCSS
+=============================================
+
+.selector {
+  @apply variable-a meta-variable-b lots-of-combined-properties-c !important;
+}
+
+@layer components {
+  .btn-blue {
+    @apply --mixin sm:space-x-0 left-[11%] border-foreground/20 !important;
+  }
+}
+
+---
+
+(stylesheet
+  (rule_set
+    (selectors
+      (class_selector
+        (class_name)))
+    (block
+      (postcss_statement
+        (at_keyword)
+        (plain_value)
+        (plain_value)
+        (plain_value)
+        (important))))
+  (at_rule
+    (at_keyword)
+    (keyword_query)
+    (block
+      (rule_set
+        (selectors
+          (class_selector
+            (class_name)))
+        (block
+          (postcss_statement
+            (at_keyword)
+            (plain_value)
+            (plain_value)
+            (plain_value)
+            (grid_value
+              (integer_value
+                (unit)))
+            (plain_value)
+            (important)))))))
