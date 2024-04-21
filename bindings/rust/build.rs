@@ -2,7 +2,7 @@ fn main() {
     let src_dir = std::path::Path::new("src");
 
     let mut c_config = cc::Build::new();
-    if cfg!(windows) {
+    if cfg!(target_env = "msvc") {
         c_config.flag("/wd4100");
     } else {
         c_config.flag("-Wno-unused-parameter");
