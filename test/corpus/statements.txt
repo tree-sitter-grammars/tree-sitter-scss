@@ -11,28 +11,11 @@ Import statements
 ---
 
 (stylesheet
-  (import_statement
-    (call_expression
-      (function_name)
-      (arguments
-        (string_value)))
-    (keyword_query))
-  (import_statement
-    (call_expression
-      (function_name)
-      (arguments
-        (string_value)))
-    (keyword_query))
-  (import_statement
-    (string_value))
-  (import_statement
-    (call_expression
-      (function_name)
-      (arguments
-        (string_value))))
-  (import_statement
-    (string_value)
-    (keyword_query)))
+  (import_statement (call_expression (function_name) (arguments (string_value (string_content)))) (keyword_query))
+  (import_statement (call_expression (function_name) (arguments (string_value (string_content)))) (keyword_query))
+  (import_statement (string_value (string_content)))
+  (import_statement (call_expression (function_name) (arguments (string_value (string_content)))))
+  (import_statement (string_value (string_content)) (keyword_query)))
 
 ==============================
 Namespace statements
@@ -52,34 +35,13 @@ Namespace statements
 
 (stylesheet
   (comment)
-  (namespace_statement
-    (call_expression
-      (function_name)
-      (arguments
-        (plain_value))))
-  (namespace_statement
-    (string_value))
-  (namespace_statement
-    (call_expression
-      (function_name)
-      (arguments
-        (plain_value))))
-  (namespace_statement
-    (namespace_name)
-    (call_expression
-      (function_name)
-      (arguments
-        (plain_value))))
+  (namespace_statement (call_expression (function_name) (arguments (plain_value))))
+  (namespace_statement (string_value (string_content)))
+  (namespace_statement (call_expression (function_name) (arguments (plain_value))))
+  (namespace_statement (namespace_name) (call_expression (function_name) (arguments (plain_value))))
   (comment)
-  (namespace_statement
-    (namespace_name)
-    (call_expression
-      (function_name)
-      (arguments
-        (plain_value))))
-  (namespace_statement
-    (namespace_name)
-    (string_value)))
+  (namespace_statement (namespace_name) (call_expression (function_name) (arguments (plain_value))))
+  (namespace_statement (namespace_name) (string_value (string_content))))
 
 ==============================
 Keyframes statements
@@ -94,33 +56,11 @@ Keyframes statements
 ---
 
 (stylesheet
-  (keyframes_statement
-    (keyframes_name)
-    (keyframe_block_list
-      (keyframe_block
-        (from)
-        (block
-          (declaration
-            (property_name)
-            (integer_value
-              (unit)))))
-      (keyframe_block
-        (integer_value
-          (unit))
-        (block
-          (declaration
-            (property_name)
-            (integer_value
-              (unit))
-            (important))))
-      (comment)
-      (keyframe_block
-        (to)
-        (block
-          (declaration
-            (property_name)
-            (integer_value
-              (unit))))))))
+  (keyframes_statement (keyframes_name) (keyframe_block_list
+    (keyframe_block (from) (block (declaration (property_name) (integer_value (unit)))))
+    (keyframe_block (integer_value (unit)) (block (declaration (property_name) (integer_value (unit)) (important))))
+    (comment)
+    (keyframe_block (to) (block (declaration (property_name) (integer_value (unit))))))))
 
 ==============================
 Media statements
@@ -138,36 +78,17 @@ Media statements
     (binary_query
       (binary_query
         (keyword_query)
-        (feature_query
-          (feature_name)
-          (integer_value
-            (unit))))
-      (feature_query
-        (feature_name)
-        (plain_value)))
+        (feature_query (feature_name) (integer_value (unit))))
+      (feature_query (feature_name) (plain_value)))
     (block))
   (media_statement
-    (feature_query
-      (feature_name)
-      (integer_value
-        (unit)))
-    (binary_query
-      (keyword_query)
-      (feature_query
-        (feature_name)
-        (plain_value)))
+    (feature_query (feature_name) (integer_value (unit)))
+    (binary_query (keyword_query) (feature_query (feature_name) (plain_value)))
     (block))
   (media_statement
-    (binary_query
-      (unary_query
-        (keyword_query))
-      (parenthesized_query
-        (keyword_query)))
+    (binary_query (unary_query (keyword_query)) (parenthesized_query (keyword_query)))
     (block))
-  (media_statement
-    (unary_query
-      (keyword_query))
-    (block)))
+  (media_statement (unary_query (keyword_query)) (block)))
 
 ==============================
 Supports statements
@@ -184,45 +105,24 @@ Supports statements
 
 (stylesheet
   (supports_statement
-    (feature_query
-      (feature_name)
-      (plain_value))
+    (feature_query (feature_name) (plain_value))
     (block
-      (rule_set
-        (selectors
-          (tag_name))
-        (block
-          (declaration
-            (property_name)
-            (plain_value))))))
+      (rule_set (selectors (tag_name)) (block
+        (declaration (property_name) (plain_value))))))
   (supports_statement
     (binary_query
-      (feature_query
-        (feature_name)
-        (plain_value))
-      (feature_query
-        (feature_name)
-        (plain_value)))
+      (feature_query (feature_name) (plain_value))
+      (feature_query (feature_name) (plain_value)))
     (block))
   (supports_statement
-    (unary_query
-      (parenthesized_query
-        (binary_query
-          (feature_query
-            (feature_name)
-            (plain_value))
-          (feature_query
-            (feature_name)
-            (plain_value)))))
+    (unary_query (parenthesized_query (binary_query
+      (feature_query (feature_name) (plain_value))
+      (feature_query (feature_name) (plain_value)))))
     (block))
   (supports_statement
-    (unary_query
-      (selector_query
-        (pseudo_class_selector
-          (class_name)
-          (arguments
-            (tag_name)
-            (tag_name)))))
+    (unary_query (selector_query (pseudo_class_selector
+      (class_name)
+      (arguments (tag_name) (tag_name)))))
     (block)))
 
 ==============================
@@ -234,8 +134,7 @@ Charset statements
 ---
 
 (stylesheet
-  (charset_statement
-    (string_value)))
+  (charset_statement (string_value (string_content))))
 
 ==============================
 Other at-statements
@@ -252,27 +151,12 @@ Other at-statements
   (at_rule
     (at_keyword)
     (block
-      (declaration
-        (property_name)
-        (string_value))
-      (declaration
-        (property_name)
-        (call_expression
-          (function_name)
-          (arguments
-            (string_value)))
-        (call_expression
-          (function_name)
-          (arguments
-            (string_value)))
-        (call_expression
-          (function_name)
-          (arguments
-            (string_value)))
-        (call_expression
-          (function_name)
-          (arguments
-            (string_value)))))))
+      (declaration (property_name) (string_value (string_content)))
+      (declaration (property_name)
+        (call_expression (function_name) (arguments (string_value (string_content))))
+        (call_expression (function_name) (arguments (string_value (string_content))))
+        (call_expression (function_name) (arguments (string_value (string_content))))
+        (call_expression (function_name) (arguments (string_value (string_content))))))))
 
 ==============================
 Single-line comments
@@ -289,21 +173,19 @@ html {
 (stylesheet
   (js_comment)
   (rule_set
-    (selectors
-      (tag_name))
+    (selectors (tag_name))
     (block
-      (declaration
-        (property_name)
-        (call_expression
-          (function_name)
-          (arguments
-            (plain_value)))))))
+      (declaration (property_name) (call_expression (function_name) (arguments (plain_value)))))))
 
 ==============================
 Use statements
 ==============================
 
 @use 'custom.css';
+@use 'foo.css' as foo;
+@use 'bar.css' as *;
+@use "other" with ($a: configured);
+@use "other" as bar with ($a: configured, $b: 5,);
 
 .inverse {
   background-color: base.$primary-color;
@@ -313,31 +195,124 @@ Use statements
 ---
 
 (stylesheet
+  (use_statement (string_value (string_content)))
+  (use_statement (string_value (string_content)) (as_clause (identifier)))
+  (use_statement (string_value (string_content)) (as_clause))
   (use_statement
-    (string_value))
+    (string_value (string_content))
+    (with_clause
+      (with_parameters
+        (variable)
+        (plain_value))))
+  (use_statement
+    (string_value (string_content))
+    (as_clause (identifier))
+    (with_clause
+      (with_parameters
+        (variable) (plain_value) (variable) (integer_value))))
   (rule_set
-    (selectors
-      (class_selector
-        (class_name)))
+    (selectors (class_selector (class_name)))
     (block
-      (declaration
-        (property_name)
-        (plain_value))
-      (declaration
-        (property_name)
-        (plain_value)))))
+      (declaration (property_name) (plain_value))
+      (declaration (property_name) (plain_value)))))
 
 ==============================
 Forward statements
 ==============================
 
 @forward 'custom.css';
+@forward 'foo.css' as foo;
+@forward 'bar.css' as *;
+@forward "other" with ($a: configured);
+@forward "other" as bar-* with ($a: configured, $b: 5,);
+@forward "other" hide foo;
+@forward "other" as foo hide bar;
+@forward "other" as * hide bar;
+@forward "other" hide bar with ($a: configured, $b: 5 !default);
+@forward "other" as bar-* hide foo with ($a: configured, $b: 5 !default);
 
 ---
 
 (stylesheet
   (forward_statement
-    (string_value)))
+    (string_value
+      (string_content)))
+  (forward_statement
+    (string_value
+      (string_content))
+    (as_clause
+      (identifier)))
+  (forward_statement
+    (string_value
+      (string_content))
+    (as_clause))
+  (forward_statement
+    (string_value
+      (string_content))
+    (with_clause
+      (with_parameters
+        (variable)
+        (plain_value))))
+  (forward_statement
+    (string_value
+      (string_content))
+    (as_clause
+      (plain_value))
+    (with_clause
+      (with_parameters
+        (variable)
+        (plain_value)
+        (variable)
+        (integer_value))))
+  (forward_statement
+    (string_value
+      (string_content))
+    (visibility_clause
+      (visibility_parameters
+        (identifier))))
+  (forward_statement
+    (string_value
+      (string_content))
+    (as_clause
+      (identifier))
+    (visibility_clause
+      (visibility_parameters
+        (identifier))))
+  (forward_statement
+    (string_value
+      (string_content))
+    (as_clause)
+    (visibility_clause
+      (visibility_parameters
+        (identifier))))
+  (forward_statement
+    (string_value
+      (string_content))
+    (visibility_clause
+      (visibility_parameters
+        (identifier)))
+    (with_clause
+      (with_parameters
+        (variable)
+        (plain_value)
+        (variable)
+        (integer_value)
+        (default))))
+  (forward_statement
+    (string_value
+      (string_content))
+    (as_clause
+      (plain_value))
+    (visibility_clause
+      (visibility_parameters
+        (identifier)))
+    (with_clause
+      (with_parameters
+        (variable)
+        (plain_value)
+        (variable)
+        (integer_value)
+        (default)))))
 
 ==============================
 Include statements
@@ -432,7 +407,8 @@ article[role="main"] {
       (attribute_selector
         (tag_name)
         (attribute_name)
-        (string_value)))
+        (string_value
+          (string_content))))
     (block
       (declaration
         (property_name)
@@ -485,6 +461,10 @@ If statements
   @if $circle {
     border-radius: $size / 2;
   }
+
+  @if meta.variable-exists("foo") {
+    border-radius: $size / 2;
+  }
 }
 
 ---
@@ -507,6 +487,18 @@ If statements
         (variable))
       (if_statement
         (variable)
+        (block
+          (declaration
+            (property_name)
+            (binary_expression
+              (variable)
+              (integer_value)))))
+      (if_statement
+        (call_expression
+          (function_name)
+          (arguments
+            (string_value
+              (string_content))))
         (block
           (declaration
             (property_name)
@@ -704,9 +696,19 @@ Functions
   @return $result;
 }
 
+@function sum($numbers...) {
+  $sum: 0;
+  @each $number in $numbers {
+    $sum: $sum + $number;
+  }
+  @return $sum;
+}
+
 .sidebar {
   float: left;
   margin-left: pow(4, 3) * 1px;
+  width: sum(50px, 30px, 100px);
+  max-width: max(200px, $widths...);
 }
 
 ---
@@ -735,6 +737,26 @@ Functions
               (variable)))))
       (return_statement
         (variable))))
+  (function_statement
+    (identifier)
+    (parameters
+      (parameter
+        (variable)))
+    (block
+      (declaration
+        (property_name)
+        (integer_value))
+      (each_statement
+        (variable)
+        (variable)
+        (block
+          (declaration
+            (property_name)
+            (binary_expression
+              (variable)
+              (variable)))))
+      (return_statement
+        (variable))))
   (rule_set
     (selectors
       (class_selector
@@ -752,7 +774,26 @@ Functions
               (integer_value)
               (integer_value)))
           (integer_value
-            (unit)))))))
+            (unit))))
+      (declaration
+        (property_name)
+        (call_expression
+          (function_name)
+          (arguments
+            (integer_value
+              (unit))
+            (integer_value
+              (unit))
+            (integer_value
+              (unit)))))
+      (declaration
+        (property_name)
+        (call_expression
+          (function_name)
+          (arguments
+            (integer_value
+              (unit))
+            (variable)))))))
 
 =================================
 Logging statements
@@ -771,8 +812,11 @@ Logging statements
     name: (identifier)
     (block
       (debug_statement
-        (string_value))
+        (string_value
+          (string_content)))
       (warn_statement
-        (string_value))
+        (string_value
+          (string_content)))
       (error_statement
-        (string_value)))))
+        (string_value
+          (string_content))))))
