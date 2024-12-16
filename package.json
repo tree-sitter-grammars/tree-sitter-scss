@@ -49,16 +49,6 @@
     "parse": "tree-sitter parse",
     "test": "tree-sitter test"
   },
-  "tree-sitter": [
-    {
-      "scope": "source.scss",
-      "file-types": [
-        "scss"
-      ],
-      "injection-regex": "^scss$",
-      "highlights": "queries/highlights.scm"
-    }
-  ],
   "eslintConfig": {
     "env": {
       "commonjs": true,

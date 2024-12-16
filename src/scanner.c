@@ -19,17 +19,24 @@ void tree_sitter_scss_external_scanner_destroy(void *payload) {}
 
 void tree_sitter_scss_external_scanner_reset(void *payload) {}
 
-unsigned tree_sitter_scss_external_scanner_serialize(void *payload, char *buffer) { return 0; }
+unsigned tree_sitter_scss_external_scanner_serialize(void *payload,
+                                                     char *buffer) {
+    return 0;
+}
 
-void tree_sitter_scss_external_scanner_deserialize(void *payload, const char *buffer, unsigned length) {}
+void tree_sitter_scss_external_scanner_deserialize(void *payload,
+                                                   const char *buffer,
+                                                   unsigned length) {}
 
-bool tree_sitter_scss_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
+bool tree_sitter_scss_external_scanner_scan(void *payload, TSLexer *lexer,
+                                            const bool *valid_symbols) {
     if (valid_symbols[ERROR_RECOVERY]) {
         return false;
     }
 
     if (valid_symbols[CONCAT]) {
-        if (iswalnum(lexer->lookahead) || lexer->lookahead == '#' || lexer->lookahead == '-') {
+        if (iswalnum(lexer->lookahead) || lexer->lookahead == '#' ||
+            lexer->lookahead == '-') {
             lexer->result_symbol = CONCAT;
             if (lexer->lookahead == '#') {
                 lexer->mark_end(lexer);
@@ -49,8 +56,10 @@ bool tree_sitter_scss_external_scanner_scan(void *payload, TSLexer *lexer, const
         }
         lexer->mark_end(lexer);
 
-        if (lexer->lookahead == '#' || lexer->lookahead == '.' || lexer->lookahead == '[' || lexer->lookahead == '-' ||
-            lexer->lookahead == '*' || lexer->lookahead == '&' || iswalnum(lexer->lookahead)) {
+        if (lexer->lookahead == '#' || lexer->lookahead == '.' ||
+            lexer->lookahead == '[' || lexer->lookahead == '-' ||
+            lexer->lookahead == '*' || lexer->lookahead == '&' ||
+            iswalnum(lexer->lookahead)) {
             return true;
         }
 
@@ -60,7 +69,8 @@ bool tree_sitter_scss_external_scanner_scan(void *payload, TSLexer *lexer, const
                 return false;
             }
             for (;;) {
-                if (lexer->lookahead == ';' || lexer->lookahead == '}' || lexer->eof(lexer)) {
+                if (lexer->lookahead == ';' || lexer->lookahead == '}' ||
+                    lexer->eof(lexer)) {
                     return false;
                 }
                 if (lexer->lookahead == '{') {
@@ -70,6 +80,8 @@ bool tree_sitter_scss_external_scanner_scan(void *payload, TSLexer *lexer, const
             }
         }
     }
+
+    bool possible_interpolation = 0;
 
     if (valid_symbols[PSEUDO_CLASS_SELECTOR_COLON]) {
         while (iswspace(lexer->lookahead)) {
@@ -81,12 +93,25 @@ bool tree_sitter_scss_external_scanner_scan(void *payload, TSLexer *lexer, const
                 return false;
             }
             lexer->mark_end(lexer);
-            // We need a { to be a pseudo class selector, a ; indicates a property
-            while (lexer->lookahead != ';' && lexer->lookahead != '}' && !lexer->eof(lexer)) {
+            // We need a { to be a pseudo class selector, a ; indicates a
+            // property
+            while (lexer->lookahead != ';' && lexer->lookahead != '}' &&
+                   !lexer->eof(lexer)) {
                 advance(lexer);
+
+                if (lexer->lookahead == '#') {
+                    possible_interpolation = 1;
+                }
+
                 if (lexer->lookahead == '{') {
-                    lexer->result_symbol = PSEUDO_CLASS_SELECTOR_COLON;
-                    return true;
+                    if (possible_interpolation != 1) {
+                        lexer->result_symbol = PSEUDO_CLASS_SELECTOR_COLON;
+                        return true;
+                    }
+                }
+
+                if (lexer->lookahead != '#') {
+                    possible_interpolation = 0;
                 }
             }
             return false;

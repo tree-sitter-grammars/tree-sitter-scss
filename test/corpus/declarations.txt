@@ -544,3 +544,33 @@ div {
       (declaration
         (property_name)
         (integer_value)))))
+
+=============================================
+Interpolation on both sides of a declaration
+=============================================
+
+div {
+  --#{$x}--left: var(--#{$y}--right);
+}
+
+---
+
+(stylesheet
+   (rule_set
+     (selectors
+       (tag_name))
+     (block
+       (declaration
+         (property_name
+           (identifier)
+           (interpolation
+             (variable))
+           (identifier))
+         (call_expression
+           (function_name)
+           (arguments
+             (identifier)
+             (interpolation
+               (variable))
+             (identifier)))))))
+

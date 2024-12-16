@@ -1,0 +1,37 @@
+{
+  "grammars": [
+    {
+      "name": "scss",
+      "camelcase": "Scss",
+      "scope": "source.scss",
+      "path": ".",
+      "file-types": [
+        "scss"
+      ],
+      "highlights": "queries/highlights.scm",
+      "injection-regex": "^scss$"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "SCSS grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Amaan Qureshi",
+        "email": "amaanq12@gmail.com"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/tree-sitter-grammars/tree-sitter-scss"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true
+  }
+}
