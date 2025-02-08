@@ -84,7 +84,6 @@ module.exports = grammar(CSS, {
       ),
       ':',
       $._value,
-      repeat(seq(optional(','), $._value)),
       optional($.important),
       ';',
     ),
@@ -215,10 +214,10 @@ module.exports = grammar(CSS, {
       $._value,
     )),
 
-    list_value: $ => seq(
-      '(',
-      sep2(',', $._value),
-      ')',
+    list_value: $ => choice(
+      seq('(', sep2(optional(','), $._value), ')'),
+      seq('[', sep2(optional(','), $._value), ']'),
+      prec(-1, sep2(optional(','), $._value)),
     ),
 
     interpolation: $ => seq('#{', $._value, '}'),
