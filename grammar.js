@@ -103,6 +103,7 @@ module.exports = grammar(CSS, {
         $.nesting_selector,
         $._concatenated_identifier,
         $.list_value,
+        $.map_value,
       )),
       $.variable,
     ),
@@ -218,6 +219,12 @@ module.exports = grammar(CSS, {
       seq('(', sep2(optional(','), $._value), ')'),
       seq('[', sep2(optional(','), $._value), ']'),
       prec(-1, sep2(optional(','), $._value)),
+    ),
+
+    map_value: $ => seq(
+      '(',
+      sep2(',', seq($._value, ':', $._value)),
+      ')',
     ),
 
     interpolation: $ => seq('#{', $._value, '}'),
