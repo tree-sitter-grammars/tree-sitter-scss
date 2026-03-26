@@ -75,6 +75,48 @@ module.exports = grammar(CSS, {
       optional(alias($.pseudo_class_arguments, $.arguments)),
     ),
 
+    pseudo_element_selector: $ => seq(
+      optional($._selector),
+      '::',
+      alias(choice($.identifier, $._concatenated_identifier), $.tag_name),
+      optional(alias($.pseudo_element_arguments, $.arguments)),
+    ),
+
+    id_selector: $ => seq(
+      optional($._selector),
+      '#',
+      alias(choice($.identifier, $._concatenated_identifier), $.id_name),
+    ),
+
+    attribute_selector: $ => seq(
+      optional($._selector),
+      '[',
+      alias(choice($.identifier, $._concatenated_identifier, $.namespace_selector), $.attribute_name),
+      optional(seq(
+        choice('=', '~=', '^=', '|=', '*=', '$='),
+        $._value,
+      )),
+      ']',
+    ),
+
+    child_selector: $ => prec.left(seq(
+      optional($._selector),
+      '>',
+      $._selector,
+    )),
+
+    sibling_selector: $ => prec.left(seq(
+      optional($._selector),
+      '~',
+      $._selector,
+    )),
+
+    adjacent_sibling_selector: $ => prec.left(seq(
+      optional($._selector),
+      '+',
+      $._selector,
+    )),
+
     // Declarations
 
     declaration: $ => seq(
@@ -88,6 +130,8 @@ module.exports = grammar(CSS, {
       optional($.important),
       ';',
     ),
+
+    default: _ => '!default',
 
     // Media queries
 
@@ -104,13 +148,71 @@ module.exports = grammar(CSS, {
         $.nesting_selector,
         $._concatenated_identifier,
         $.list_value,
+        $.map_value,
+        $.unary_expression,
+        $.default,
       )),
       $.variable,
     ),
 
-    use_statement: $ => seq('@use', $._value, ';'),
+    string_value: $ => choice(
+      seq(
+        '\'',
+        repeat(choice(
+          alias(/([^#'\n]|\\(.|\n)|\#[^{])+/, $.string_content),
+          $.interpolation,
+        )),
+        '\'',
+      ),
+      seq(
+        '"',
+        repeat(choice(
+          alias(/([^#"\n]|\\(.|\n)|\#[^{])+/, $.string_content),
+          $.interpolation,
+        )),
+        '"',
+      ),
+    ),
 
-    forward_statement: $ => seq('@forward', $._value, ';'),
+    use_statement: $ => seq(
+      '@use',
+      $._value,
+      optional($.as_clause),
+      optional($.with_clause),
+      ';',
+    ),
+
+    as_clause: $ => seq('as', choice('*', $.identifier, $.plain_value)),
+
+    with_clause: $ => seq('with', $.with_parameters),
+
+    with_parameters: $ => seq(
+      '(',
+      sep1(
+        ',',
+        seq(
+          $.variable,
+          ':',
+          $._value,
+          optional($.default),
+        ),
+      ),
+      optional(','),
+      ')',
+    ),
+
+    visibility_clause: $ => seq(choice('hide', 'show'), $.visibility_parameters),
+
+    visibility_parameters: $ => sep1(',', $.identifier),
+
+    forward_statement: $ => seq(
+      '@forward',
+      $._value,
+      optional($.as_clause),
+      optional($.visibility_clause),
+      optional($.with_clause),
+      ';',
+    ),
 
     mixin_statement: $ => seq(
       '@mixin',
@@ -146,12 +248,16 @@ module.exports = grammar(CSS, {
 
     parameters: $ => seq('(', sep1(',', $.parameter), ')'),
 
-    parameter: $ => seq(
-      $.variable,
-      optional(seq(
-        ':',
-        field('default', $._value),
-      )),
+    parameter: $ => choice(
+      seq(
+        $.variable,
+        optional('...'),
+        optional(seq(
+          ':',
+          field('default', $._value),
+        )),
+      ),
+      '...',
     ),
 
     return_statement: $ => seq('@return', $._value, ';'),
@@ -209,11 +315,16 @@ module.exports = grammar(CSS, {
       $.arguments,
     ),
 
-    binary_expression: $ => prec.left(seq(
+    binary_expression: $ => prec.left(1, seq(
       $._value,
-      choice('+', '-', '*', '/', '==', '<', '>', '!=', '<=', '>='),
+      choice('+', '-', '*', '/', '==', '<', '>', '!=', '<=', '>=', 'and', 'or'),
       $._value,
     )),
+
+    unary_expression: $ => seq(
+      choice('-', '+', '/', 'not'),
+      $._value,
+    ),
 
     list_value: $ => seq(
       '(',
@@ -221,9 +332,28 @@ module.exports = grammar(CSS, {
       ')',
     ),
 
+    map_value: $ => seq(
+      '(',
+      sep1(',', seq(
+        field('key', $._value),
+        ':',
+        field('value', $._value),
+      )),
+      ')',
+    ),
+
     interpolation: $ => seq('#{', $._value, '}'),
 
     placeholder: $ => seq('%', $.identifier),
+
+    arguments: $ => seq(
+      token.immediate('('),
+      sep(
+        choice(',', ';'),
+        seq(repeat1($._value), optional('...')),
+      ),
+      ')',
+    ),
 
     _concatenated_identifier: $ => choice(
       seq(
@@ -243,8 +373,45 @@ module.exports = grammar(CSS, {
     ),
 
     variable: _ => /([a-zA-Z_]+\.)?\$[a-zA-Z-_][a-zA-Z0-9-_]*/,
+
+    plain_value: _ => token(seq(
+      repeat(choice(
+        /[-_]/,
+        /\/[^\*\s,;!{}()\[\]]/, // Slash not followed by a '*' (which would be a comment)
+      )),
+      /[a-zA-Z]/,
+      choice(
+        /[^/\s,:;!{}()\[\]]/, // Not a slash, not a delimiter character (no colon)
+        /\/[^\*\s,:;!{}()\[\]]/, // Slash not followed by a '*' (which would be a comment) (no colon)
+        seq(
+          repeat1(choice(
+            /[^/\s,;!{}()\[\]]/, // Not a slash, not a delimiter character
+            /\/[^\*\s,;!{}()\[\]]/, // Slash not followed by a '*' (which would be a comment)
+          )),
+          choice(
+            /[^/\s,:;!{}()\[\]]/, // Not a slash, not a delimiter character (no colon)
+            /\/[^\*\s,:;!{}()\[\]]/, // Slash not followed by a '*' (which would be a comment) (no colon)
+          ),
+        ),
+      ),
+    )),
+
   },
 });
+
+/**
+ * Creates a rule to optionally match one or more of the rules separated by `separator`
+ *
+ * @param {RuleOrLiteral} separator
+ *
+ * @param {RuleOrLiteral} rule
+ *
+ * @return {ChoiceRule}
+ *
+ */
+function sep(separator, rule) {
+  return optional(sep1(separator, rule));
+}
 
 /**
  * Creates a rule to match one or more of the rules separated by `separator`
