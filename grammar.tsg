@@ -1,0 +1,253 @@
+let css = inherit("../tree-sitter-css/grammar.tsg")
+
+macro sep1(separator: rule_t, item: rule_t) rule_t {
+    seq(item, repeat(seq(separator, item)))
+}
+macro sep2(separator: rule_t, item: rule_t) rule_t {
+    seq(item, repeat1(seq(separator, item)))
+}
+
+grammar {
+    language: "scss",
+    inherits: css,
+    externals: [_descendant_operator, _pseudo_class_selector_colon, __error_recovery, _concat],
+}
+
+override rule _top_level_item {
+    choice(
+        css::_top_level_item,
+        postcss_statement,
+        use_statement,
+        forward_statement,
+        mixin_statement,
+        include_statement,
+        function_statement,
+        return_statement,
+        extend_statement,
+        error_statement,
+        warn_statement,
+        debug_statement,
+        at_root_statement,
+        if_statement,
+        each_statement,
+        for_statement,
+        while_statement,
+    )
+}
+
+override rule _block_item {
+    choice(
+        css::_block_item,
+        mixin_statement,
+        include_statement,
+        function_statement,
+        return_statement,
+        extend_statement,
+        error_statement,
+        warn_statement,
+        debug_statement,
+        at_root_statement,
+        if_statement,
+        each_statement,
+        for_statement,
+        while_statement,
+    )
+}
+
+// Selectors
+
+override rule _selector {
+    choice(
+        css::_selector,
+        alias(_concatenated_identifier, tag_name),
+        placeholder,
+    )
+}
+
+override rule class_selector {
+    prec(1, seq(
+        optional(_selector),
+        choice(".", nesting_selector),
+        alias(choice(identifier, _concatenated_identifier), class_name),
+    ))
+}
+
+override rule pseudo_class_selector {
+    seq(
+        optional(_selector),
+        alias(_pseudo_class_selector_colon, ":"),
+        alias(choice(identifier, _concatenated_identifier), class_name),
+        optional(alias(pseudo_class_arguments, arguments)),
+    )
+}
+
+// Declarations
+
+override rule declaration {
+    seq(
+        alias(
+            choice(identifier, variable, _concatenated_identifier),
+            property_name,
+        ),
+        ":",
+        _value,
+        repeat(seq(optional(","), _value)),
+        optional(important),
+        ";",
+    )
+}
+
+// Media queries
+
+override rule _query {
+    choice(
+        css::_query,
+        prec(-1, interpolation),
+    )
+}
+
+// Property Values
+
+override rule _value {
+    choice(
+        css::_value,
+        prec(-1, choice(
+            nesting_selector,
+            _concatenated_identifier,
+            list_value,
+        )),
+        variable,
+    )
+}
+
+rule use_statement { seq("@use", _value, ";") }
+
+rule forward_statement { seq("@forward", _value, ";") }
+
+rule mixin_statement {
+    seq("@mixin", field(name, identifier), optional(parameters), block)
+}
+
+rule include_statement {
+    seq(
+        "@include",
+        identifier,
+        optional(alias(_include_arguments, arguments)),
+        choice(block, ";"),
+    )
+}
+
+rule _include_arguments {
+    seq(
+        token_immediate("("),
+        sep1(",", alias(_include_argument, argument)),
+        token_immediate(")"),
+    )
+}
+
+rule _include_argument {
+    seq(
+        optional(seq(field(name, variable), ":")),
+        field(value, _value),
+    )
+}
+
+rule function_statement {
+    seq("@function", field(name, identifier), optional(parameters), block)
+}
+
+rule parameters { seq("(", sep1(",", parameter), ")") }
+
+rule parameter {
+    seq(variable, optional(seq(":", field(default, _value))))
+}
+
+rule return_statement { seq("@return", _value, ";") }
+
+rule extend_statement { seq("@extend", choice(_value, class_selector), ";") }
+
+rule error_statement { seq("@error", _value, ";") }
+
+rule warn_statement { seq("@warn", _value, ";") }
+
+rule debug_statement { seq("@debug", _value, ";") }
+
+rule at_root_statement { seq("@at-root", _value, block) }
+
+rule if_statement {
+    seq(
+        "@if",
+        field(condition, _value),
+        block,
+        repeat(else_if_clause),
+        optional(else_clause),
+    )
+}
+
+rule else_if_clause {
+    seq("@else", "if", field(condition, _value), block)
+}
+
+rule else_clause { seq("@else", block) }
+
+rule each_statement {
+    seq(
+        "@each",
+        optional(seq(field(key, variable), ",")),
+        field(value, variable),
+        "in",
+        _value,
+        block,
+    )
+}
+
+rule for_statement {
+    seq(
+        "@for",
+        variable,
+        "from", field(from, _value),
+        "through", field(through, _value),
+        block,
+    )
+}
+
+rule while_statement { seq("@while", _value, block) }
+
+override rule call_expression {
+    seq(alias(choice(identifier, plain_value), function_name), arguments)
+}
+
+override rule binary_expression {
+    prec_left(0, seq(
+        _value,
+        choice("+", "-", "*", "/", "==", "<", ">", "!=", "<=", ">="),
+        _value,
+    ))
+}
+
+rule list_value { seq("(", sep2(",", _value), ")") }
+
+rule interpolation { seq("#{", _value, "}") }
+
+rule placeholder { seq("%", identifier) }
+
+rule _concatenated_identifier {
+    choice(
+        seq(
+            identifier,
+            repeat1(seq(
+                _concat,
+                choice(interpolation, identifier, alias(token_immediate("-"), identifier)),
+            )),
+        ),
+        seq(
+            interpolation,
+            repeat(seq(
+                _concat,
+                choice(interpolation, identifier, alias(token_immediate("-"), identifier)),
+            )),
+        ),
+    )
+}
+
+rule variable { regexp(r"([a-zA-Z_]+\.)?\$[a-zA-Z-_][a-zA-Z0-9-_]*") }
