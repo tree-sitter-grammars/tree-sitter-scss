@@ -1,5 +1,7 @@
 {
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/grammar.schema.json",
   "name": "scss",
+  "inherits": "css",
   "rules": {
     "stylesheet": {
       "type": "REPEAT",
@@ -3008,5 +3010,6 @@
     "_top_level_item",
     "_block_item"
   ],
-  "supertypes": []
+  "supertypes": [],
+  "reserved": {}
 }

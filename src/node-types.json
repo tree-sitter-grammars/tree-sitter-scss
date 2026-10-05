@@ -3500,6 +3500,7 @@
   {
     "type": "stylesheet",
     "named": true,
+    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -4141,7 +4142,8 @@
   },
   {
     "type": "comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "feature_name",
@@ -4177,7 +4179,8 @@
   },
   {
     "type": "js_comment",
-    "named": true
+    "named": true,
+    "extra": true
   },
   {
     "type": "keyframes_name",
