@@ -16,6 +16,11 @@
 "@include" @keyword.import
 
 [
+  "@if"
+  "@else"
+] @keyword.conditional
+
+[
   "@while"
   "@each"
   "@for"
