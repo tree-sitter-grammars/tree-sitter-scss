@@ -156,7 +156,7 @@ module.exports = grammar(CSS, {
 
     return_statement: $ => seq('@return', $._value, ';'),
 
-    extend_statement: $ => seq('@extend', choice($._value, $.class_selector), ';'),
+    extend_statement: $ => seq('@extend', choice($._value, $.class_selector, $.placeholder), ';'),
 
     error_statement: $ => seq('@error', $._value, ';'),
 
