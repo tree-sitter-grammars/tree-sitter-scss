@@ -402,6 +402,67 @@ Extend statements
               (class_name))))))))
 
 ==============================
+Placeholder extensions
+==============================
+
+%interactive {
+  cursor: pointer;
+}
+
+.card {
+  @extend %interactive;
+  width: columns(6);
+  &:hover {
+    color: white;
+  }
+}
+
+.after { display: block; }
+
+---
+
+(stylesheet
+  (rule_set
+    (selectors
+      (placeholder
+        (identifier)))
+    (block
+      (declaration
+        (property_name)
+        (plain_value))))
+  (rule_set
+    (selectors
+      (class_selector
+        (class_name)))
+    (block
+      (extend_statement
+        (placeholder
+          (identifier)))
+      (declaration
+        (property_name)
+        (call_expression
+          (function_name)
+          (arguments
+            (integer_value))))
+      (rule_set
+        (selectors
+          (pseudo_class_selector
+            (nesting_selector)
+            (class_name)))
+        (block
+          (declaration
+            (property_name)
+            (plain_value))))))
+  (rule_set
+    (selectors
+      (class_selector
+        (class_name)))
+    (block
+      (declaration
+        (property_name)
+        (plain_value)))))
+
+==============================
 Apply statements
 ==============================
 
